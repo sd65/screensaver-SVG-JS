@@ -15,6 +15,32 @@
       fill: #32ADA1;
       shape-rendering: optimizeSpeed;
     }
+    .cycleColor {
+      fill: #603;
+      animation-name: colorCycle;
+      animation-duration:60s;
+      animation-iteration-count:infinite;
+    }
+    @keyframes colorCycle
+    {
+      0% {fill:#CC3200;}
+      25% {fill:#060;}
+      50% {fill:#006;}
+      75% {fill:#C30;}
+    }
+    #info {
+      position: absolute;
+      bottom:10px;
+      right:10px;
+      opacity:0.5;
+      background:#111;
+      color:white;
+      padding:5px;
+      font-family: Arial;
+    }
+    #info h1 {
+      font-size: 1em;
+    }
   </style>
 </head>
 <body>
@@ -24,43 +50,73 @@
   </polygon>
   </svg> 
 
+  <div id="info">
+    <h1>Screensaver with SVG/JS</h1>
+    <p>Help:</p>
+    <p>
+    Space: Re-generate behaviour<br/>
+    c: Toggle cycle colors<br/>
+    h: Toggle hide info</br>
+    Up/Down : Change speed
+    </p>
+    <p>Speed: <span id="speedInfo"></span></p>
+  </div>
 
   <script>
     
-    p = document.getElementById("poly").points
+    speed=5
+    poly = document.getElementById("poly")
+    p = poly.points
+    infoPanel = document.getElementById("info")
+    speedInfo = document.getElementById("speedInfo")
     
     function setLimits() {
       maxHeight = document.body.scrollHeight
       maxWidth = document.body.scrollWidth
     }
     
-    function setSpeed() {
-      speed = [
+    function setRandomSpeed() {
+      pointSpeed = [
         { "x": generateRandom(), "y": generateRandom()},
         { "x": generateRandom(), "y": generateRandom()},
         { "x": generateRandom(), "y": generateRandom()}
       ]
+      speedInfo.textContent = speed;
+    }
+    
+    function modifySpeed(action) {
+      var step=0.5;
+      if(action=='+') speed+=step
+      else if(action=='-' && speed-step > 0) speed-=step
+      else return;
+      setRandomSpeed()
     }
 
     function generateRandom() {
-      var min = -5.0
-      var max = 5.0
-      return parseFloat((Math.random() * (max - min) + min).toFixed(2))
+      return parseFloat((Math.random() * 2 * speed - speed).toFixed(2))
     }
     
     function movePoint(index) {
       var x = p[index].x
       var y = p[index].y
-      var speedX = speed[index].x
-      var speedY = speed[index].y
+      var speedX = pointSpeed[index].x
+      var speedY = pointSpeed[index].y
       if (x+speedX > maxWidth) speedX=-speedX
       if (x+speedX < 0) speedX=-speedX
       if (y+speedY > maxHeight) speedY=-speedY
       if (y+speedY < 0) speedY=-speedY
-      speed[index].x = speedX
-      speed[index].y = speedY
+      pointSpeed[index].x = speedX
+      pointSpeed[index].y = speedY
       p[index].x = x + speedX
       p[index].y = y + speedY
+    }
+
+    function toggleCycleColor() {
+      poly.classList.toggle('cycleColor');      
+    }
+    
+    function toggleInfoDisplay() {
+      infoPanel.style.display = (infoPanel.style.display == 'none' ? 'block' : 'none');
     }
     
     function main() {
@@ -72,8 +128,15 @@
     setLimits();
     window.addEventListener("resize", setLimits);
     
-    setSpeed();
-    window.addEventListener("keydown", setSpeed);
+    setRandomSpeed();
+    window.addEventListener("keydown", function(e) {
+      var keyCode=e.keyCode;
+      if (keyCode==32) setRandomSpeed(); // Space
+      if (keyCode==38) modifySpeed('+'); // Up
+      if (keyCode==40) modifySpeed('-'); // Down
+      if (keyCode==67) toggleCycleColor(); // c
+      if (keyCode==72) toggleInfoDisplay(); // h
+    });
     
     setInterval(main, 5);
 
