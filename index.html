@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Screensaver with SVG/JS</title>
+  <style>
+    html, body, svg {
+      width: 100%;
+      height: 100%;
+      margin:0;
+      padding:0;
+      overflow:hidden;
+    }
+    #poly {
+      fill: #32ADA1;
+    }
+  </style>
+</head>
+<body>
+  
+   <svg>
+    <polygon id="poly" points="0,10 900,10 500,500">
+  </polygon>
+  </svg> 
+
+
+  <script>
+    
+    p = document.getElementById("poly").points
+    
+    function setLimits() {
+      maxHeight = document.body.scrollHeight
+      maxWidth = document.body.scrollWidth
+    }
+    
+    function setSpeed() {
+      speed = [
+        { "x": generateRandom(), "y": generateRandom()},
+        { "x": generateRandom(), "y": generateRandom()},
+        { "x": generateRandom(), "y": generateRandom()}
+      ]
+    }
+
+    function generateRandom() {
+      var min = -5.0
+      var max = 5.0
+      return parseFloat((Math.random() * (max - min) + min).toFixed(2))
+    }
+    
+    function movePoint(index) {
+      var x = p[index].x
+      var y = p[index].y
+      var speedX = speed[index].x
+      var speedY = speed[index].y
+      if (x+speedX > maxWidth) speedX=-speedX
+      if (x+speedX < 0) speedX=-speedX
+      if (y+speedY > maxHeight) speedY=-speedY
+      if (y+speedY < 0) speedY=-speedY
+      speed[index].x = speedX
+      speed[index].y = speedY
+      p[index].x = x + speedX
+      p[index].y = y + speedY
+    }
+    
+    function main() {
+      movePoint(0)
+      movePoint(1)
+      movePoint(2)
+    }
+    
+    setLimits();
+    window.addEventListener("resize", setLimits);
+    
+    setSpeed();
+    window.addEventListener("keydown", setSpeed);
+    
+    setInterval(main, 5);
+
+  </script>
+</body>
+</html>
